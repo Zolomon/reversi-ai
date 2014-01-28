@@ -15,6 +15,8 @@ class Game(object):
         self.board.set_black(3,4)
         self.board.set_white(3,3)
         self.board.set_white(4,4)
+        self.board.flip(4,4)
+        self.board.flip(3,4)
 
     def run(self):
         while True:
@@ -33,14 +35,49 @@ class Piece(object):
         self.color = None
         self.WHITE = False
         self.BLACK = True
+        self.flipped = False
+
+        self.drawing = {
+            "WHITE":self.draw_white, 
+            "BLACK":self.draw_black, 
+            "BOARD":self.draw_board, 
+            "MOVE" :self.draw_move}
 
     def draw(self):
-        if self.color is None:
-            sys.stdout.write(clr.format_color('  ', bg=clr.rgb(0,3,0)))
-        elif self.color == self.WHITE:
-            sys.stdout.write(clr.format_color('  ', bg=clr.rgb(5,5,5)))
+        state = "BOARD"
+
+        if self.color == self.WHITE:
+            state = 'WHITE'
         elif self.color == self.BLACK:
+            state = 'BLACK'        
+        
+        if state in self.drawing:
+            self.drawing[state]()
+            
+        self.flipped = False
+
+    def draw_white(self):
+        if self.flipped:
+            sys.stdout.write(clr.format_color('><', 
+                                                  fg=clr.rgb(4,4,4), 
+                                                  bg=clr.rgb(5,5,5)))
+        else:
+            sys.stdout.write(clr.format_color('  ', bg=clr.rgb(5,5,5)))
+
+
+    def draw_black(self):
+        if self.flipped:
+            sys.stdout.write(clr.format_color('><', 
+                                                  fg=clr.rgb(2,2,2), 
+                                                  bg=clr.rgb(1,1,1)))
+        else:
             sys.stdout.write(clr.format_color('  ', bg=clr.rgb(1,1,1)))
+
+    def draw_board(self):
+        sys.stdout.write(clr.format_color('  ', bg=clr.rgb(0,3,0)))
+
+    def draw_move(self):
+        pass
 
     def set_black(self):
         self.color = self.BLACK
@@ -50,6 +87,7 @@ class Piece(object):
 
     def flip(self):
         self.color = not self.color
+        self.flipped = True
     
 
 class Board(object):
@@ -57,8 +95,8 @@ class Board(object):
         self.width = 8
         self.height = 8
         self.pieces = list((Piece(x, y) 
-                       for x in range(0,self.width) 
-                       for y in range(0,self.height)))
+                       for x in range(0, self.width) 
+                       for y in range(0, self.height)))
 
     def draw(self):
         os.system('clear')
