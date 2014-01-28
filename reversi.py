@@ -18,6 +18,8 @@ class Game(object):
         self.board.flip(4,4)
         self.board.flip(3,4)
 
+        self.board.move(5,5)
+
     def run(self):
         while True:
             self.board.draw()
@@ -32,9 +34,7 @@ class Piece(object):
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.color = None
-        self.WHITE = False
-        self.BLACK = True
+        self.state = 'BOARD'
         self.flipped = False
 
         self.drawing = {
@@ -43,16 +43,9 @@ class Piece(object):
             "BOARD":self.draw_board, 
             "MOVE" :self.draw_move}
 
-    def draw(self):
-        state = "BOARD"
-
-        if self.color == self.WHITE:
-            state = 'WHITE'
-        elif self.color == self.BLACK:
-            state = 'BLACK'        
-        
-        if state in self.drawing:
-            self.drawing[state]()
+    def draw(self):        
+        if self.state in self.drawing:
+            self.drawing[self.state]()
             
         self.flipped = False
 
@@ -77,17 +70,25 @@ class Piece(object):
         sys.stdout.write(clr.format_color('  ', bg=clr.rgb(0,3,0)))
 
     def draw_move(self):
-        pass
+        sys.stdout.write(clr.format_color('><', 
+                                                  fg=clr.rgb(5,0,0), 
+                                                  bg=clr.rgb(0,3,0)))
 
     def set_black(self):
-        self.color = self.BLACK
+        self.state = 'BLACK'
     
     def set_white(self):
-        self.color = self.WHITE
+        self.state = 'WHITE'
 
     def flip(self):
-        self.color = not self.color
+        if self.state == 'BLACK': 
+            self.state = 'WHITE'
+        elif self.state == 'WHITE': 
+            self.state = 'BLACK'
         self.flipped = True
+
+    def move(self):
+        self.state = 'MOVE'
     
 
 class Board(object):
@@ -125,6 +126,8 @@ class Board(object):
     def flip(self, x, y):
         self.pieces[x + (y*self.width)].flip()
         
+    def move(self, x, y):
+        self.pieces[x + (y*self.width)].move()
 
 def main():
     """ Reversi game with human player vs AI player """
