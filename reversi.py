@@ -4,6 +4,8 @@ import os
 import argparse
 import sys
 
+import color as clr
+
 class Game(object):
     def __init__(self, timeout=1000):
         self.board = Board()
@@ -19,27 +21,57 @@ class Game(object):
             else: 
                 pass
 
+class Piece(object):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.color = None
+        self.WHITE = False
+        self.BLACK = True
+
+    def draw(self):
+        if self.color is None:
+            sys.stdout.write(clr.format_color('  ', bg=clr.rgb(0,3,0)))
+        elif self.color == self.WHITE:
+            sys.stdout.write(clr.format_color('  ', bg=clr.rgb(5,5,5)))
+        elif self.color == self.BLACK:
+            sys.stdout.write(clr.format_color('  ', bg=clr.rgb(1,1,1)))
+
+    def set_black():
+        self.color = self.BLACK
+    
+    def set_white():
+        self.color = self.WHITE
+
+    def flip():
+        self.color = not self.color
+    
+
 class Board(object):
     def __init__(self):
         self.width = 8
         self.height = 8
+        self.pieces = [Piece(x, y) for x in range(0,8) for y in range(0,8)]
 
     def draw(self):
         os.system('clear')
 
-        labels = "  a b c d e f g h\n"
+        labels = "  a b c d e f g h"
         sys.stdout.write(labels)
-
+                
         size = self.width * self.height
-        for x in range(size+1):
-            if x == (size): 
-                sys.stdout.write('x\n')
-            elif x % 8 == 0 and x != 0: 
-                sys.stdout.write('x\n' + str(int(x / 8) + 1) + ' ')
-            elif x == 0:
-                sys.stdout.write('1 ')
-            else: 
-                sys.stdout.write('x ')
+        i = 0
+        for p in self.pieces:
+            if i % 8 == 0:                 
+                print()
+                print(str(int(i/8)+1), end=' ')
+                
+            p.draw()
+
+            i += 1
+
+        print()
+        
 
 def main():
     """ Reversi game with human player vs AI player """
