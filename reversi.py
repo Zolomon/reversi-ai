@@ -11,6 +11,11 @@ class Game(object):
         self.board = Board()
         self.timeout = timeout
 
+        self.board.set_black(4,3)
+        self.board.set_black(3,4)
+        self.board.set_white(3,3)
+        self.board.set_white(4,4)
+
     def run(self):
         while True:
             self.board.draw()
@@ -37,13 +42,13 @@ class Piece(object):
         elif self.color == self.BLACK:
             sys.stdout.write(clr.format_color('  ', bg=clr.rgb(1,1,1)))
 
-    def set_black():
+    def set_black(self):
         self.color = self.BLACK
     
-    def set_white():
+    def set_white(self):
         self.color = self.WHITE
 
-    def flip():
+    def flip(self):
         self.color = not self.color
     
 
@@ -51,7 +56,9 @@ class Board(object):
     def __init__(self):
         self.width = 8
         self.height = 8
-        self.pieces = [Piece(x, y) for x in range(0,8) for y in range(0,8)]
+        self.pieces = list((Piece(x, y) 
+                       for x in range(0,self.width) 
+                       for y in range(0,self.height)))
 
     def draw(self):
         os.system('clear')
@@ -69,8 +76,16 @@ class Board(object):
             p.draw()
 
             i += 1
-
         print()
+
+    def set_white(self, x, y):
+        self.pieces[x + (y*self.width)].set_white()
+
+    def set_black(self, x, y):
+        self.pieces[x + (y*self.width)].set_black()
+
+    def flip(self, x, y):
+        self.pieces[x + (y*self.width)].flip()
         
 
 def main():
