@@ -96,8 +96,9 @@ class Board(object):
         """        
         for p in self.pieces:
             if p.get_state() == player:
-                for d in DIRECTIONS:
-                    self.mark_move(player, p, d)
+                #for d in DIRECTIONS:
+                #    self.mark_move(player, p, d)
+                [self.mark_move(player, p, d) for d in DIRECTIONS]
 
     def mark_move(self, player, piece, direction):
         x, y = piece.get_position()
