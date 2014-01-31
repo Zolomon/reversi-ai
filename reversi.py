@@ -3,16 +3,93 @@
 import os
 import argparse
 import sys
+from string import ascii_lowercase, digits
+from collections import deque
 
 import color as clr
 
-class Game(object):
-    def __init__(self, timeout=1000, colour='WHITE', display_moves=True):
-        self.board = Board()
-        self.timeout = timeout
+class Controller(object):
+    def next_move(self, pieces):
+        pass
 
-        self.player = colour
+class PlayerController(Controller):
+    def __init__(self):
+        pass
+
+    def next_move(self, board):
+        result = None
+        while result is None:
+            
+            event = input('')
+            if event[0] == '/':
+                if event[1:] == 'quit' or event[1:] == 'q': 
+                    print('Quitting. Thank you for playing.')
+                    exit()                    
+            else: 
+                try:
+                    coords = list(map(lambda x: x.lower(), event.split()))
+                    result = self._parse_coords(coords)
+                except:
+                    print("Invalid coordinates, retry.")
+        return result      
+
+    def _parse_coords(self, data):
+        src = (abs(ord(data[0][0]) - ord('h')), abs(ord(data[0][1])))
+        dst = (abs(ord(data[1][0]) - ord('h')), abs(ord(data[1][1])))
+        return (src, dst)
+
+    def __str__(self):
+        return "Player"
+    
+    def __repr__(self):
+        return "PlayerController"
+
+class AiController(Controller):
+    def __init__(self, id):
+        self.id = id
+
+    def next_move(self, board):
+        pass
+
+    def __str__(self):
+        return "Ai"
+
+    def __repr__(self):
+        return "AiController["+self.id+"]"
+
+class AlphaBetaPruner(object):
+    """Alpha-Beta Pruning algorithm."""
+    def __init__(self):
+        pass
+
+    def alpha_beta_search(self, state):
+        """Returns an action"""
+        #value = self.max_value(state, sys.minint, sys.maxint)
+        #return 
+        pass
+
+    def max_value(self, state, alpha, beta):
+        """Returns a utility value"""
+        pass
+
+    def min_value(self, state, alphaa, beta):
+        """Returns a utility value"""
+        pass
+    
+
+class Game(object):
+    """Game ties everything together. It has a board, 
+    two controllers, and can draw to the screen."""
+    def __init__(self, timeout=1000, colour='WHITE', display_moves=True, players=['player', 'ai']):
+        self.board         = Board()
+        self.timeout       = timeout
+        self.aicounter     = 0
+
+        self.player        = colour
+        self.players       = players
         self.display_moves = display_moves
+        
+        self.controllers   = deque([self._make_controller(p) for p in players])
 
         self.board.set_black(4,3)
         self.board.set_black(3,4)
@@ -20,22 +97,29 @@ class Game(object):
         self.board.set_white(3,3)
         self.board.set_white(4,4)
 
-        #self.board.move(5,5)
-        self.board.mark_moves(self.player)
+        self.board.mark_moves(self.player)       
+        
 
-    def run(self):
+    def _make_controller(self, ctrltype):
+        if ctrltype == 'player':
+            return PlayerController()
+        else:
+            self.aicounter += 1
+            return AiController(self.aicounter)
+    
+
+    def run(self):       
+        turn = 'player'
         while True:
             os.system('clear')
             print("Playing as:       " + self.player)
             print("Displaying moves: " + str(self.display_moves))
-            self.board.draw()
-            event = input('')
-            
-            if event == 'quit': 
-                break
-            else: 
-                pass
-    
+            print("Current turn:     " + str(self.controllers[0]))
+            self.board.draw()            
+
+            self.board.make_move(self.controllers[0].next_move(self.board))
+
+            self.controllers.rotate()
 
 BOARD, WHITE, BLACK, MOVE = 'BOARD', 'WHITE', 'BLACK', 'MOVE'
 WIDTH, HEIGHT = 8, 8
@@ -51,6 +135,7 @@ NORTHWEST = -HEIGHT  - 1
 DIRECTIONS = (NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST)
 
 class Board(object):
+    """Board represents the current state of the Reversi board."""
     def __init__(self):
         self.width = 8
         self.height = 8
@@ -109,9 +194,13 @@ class Board(object):
                 tile += direction
             if self.pieces[tile].get_state() == BOARD:
                 self.pieces[tile].move()      
+
+    def make_move(self, coordinates):
+        print(coordinates)
             
 
 class Piece(object):
+    """Pieces are laid out on the board on an 8x8 grid."""
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -172,7 +261,7 @@ class Piece(object):
         return (self.x, self.y)
 
     def get_state(self):
-        return self.state
+        return self.state  
 
 def main():
     """ Reversi game with human player vs AI player """
