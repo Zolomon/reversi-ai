@@ -1,5 +1,5 @@
-from ai import AlphaBetaPruner
-from settings import *
+from game.ai import AlphaBetaPruner
+from game.settings import *
 
 __author__ = 'bengt'
 
@@ -55,7 +55,7 @@ class AiController(Controller):
     def next_move(self, board):
         pruner = AlphaBetaPruner(board.pieces, self.colour, BLACK if self.colour is WHITE else WHITE)
         result = pruner.alpha_beta_search()
-        print("AI: ", result)
+        #print("AI: ", result)
         return result
 
     def get_colour(self):
