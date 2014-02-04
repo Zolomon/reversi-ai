@@ -56,9 +56,11 @@ class Game(object):
             print("Displaying moves: " + str(self.display_moves))
             print("Current turn:     " + str(self.controllers[0]))
             #self.board.clear_moves()
-            self.board.draw()
+            self.board.mark_moves(self.controllers[0].get_colour())
+            print(self.board.draw())
+            self.board.clear_moves()
 
-
-            self.board.make_move(self.controllers[0].next_move(self.board), self.controllers[0].get_colour())
+            next_move = self.controllers[0].next_move(self.board)
+            self.board.make_move(next_move, self.controllers[0].get_colour())
 
             self.controllers.rotate()

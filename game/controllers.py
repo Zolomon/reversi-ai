@@ -19,8 +19,7 @@ class PlayerController(Controller):
     def next_move(self, board):
         result = None
         while result is None:
-
-            event = input('')
+            event = input('Enter a coordinate, ex: c3, or /command: ')
             if event[0] == '/':
                 if event[1:] == 'quit' or event[1:] == 'q':
                     print('Quitting. Thank you for playing.')
@@ -29,8 +28,13 @@ class PlayerController(Controller):
                 try:
                     x, y = event[0], event[1]
                     result = self._parse_coordinates(x, y)
+                    found_moves = [p.get_position() for p in board.get_moves(self.get_colour())]
+                    if result not in found_moves:
+                        raise TypeError
                 except (TypeError, ValueError):
+                    result = None
                     print("Invalid coordinates, retry.")
+
         return result
 
     def get_colour(self):

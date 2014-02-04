@@ -21,39 +21,38 @@ class Piece(object):
             "MOVE": self.draw_move}
 
     def draw(self):
+        result = ''
         if self.state in self.drawing:
-            self.drawing[self.state]()
+            result = self.drawing[self.state]()
 
-        self.flipped = False
+        return result
 
     def draw_white(self):
         if self.flipped:
-            sys.stdout.write(
-                #clr.format_color('><', fg=clr.rgb(4, 4, 4), bg=clr.rgb(5, 5, 5)))
-                clr.format_color('WF'))
+            return clr.format_color('><', fg=clr.rgb(4, 4, 4), bg=clr.rgb(5, 5, 5))
+            #return 'WF'
         else:
-            #sys.stdout.write(clr.format_color('  ', bg=clr.rgb(5, 5, 5)))
-            sys.stdout.write(clr.format_color('WW'))
+            return clr.format_color('  ', bg=clr.rgb(5, 5, 5))
+            #return 'WW'
 
     def draw_black(self):
         if self.flipped:
-            sys.stdout.write(
-                #clr.format_color('><', fg=clr.rgb(2, 2, 2), bg=clr.rgb(1, 1, 1)))
-                clr.format_color('BF'))
+
+            return clr.format_color('><', fg=clr.rgb(2, 2, 2), bg=clr.rgb(1, 1, 1))
+            #return 'BF'
         else:
-            #sys.stdout.write(clr.format_color('  ', bg=clr.rgb(1, 1, 1)))
-            sys.stdout.write(clr.format_color('BB'))
+            return clr.format_color('  ', bg=clr.rgb(1, 1, 1))
+            #return 'BB'
 
     @staticmethod
     def draw_board():
-        #sys.stdout.write(clr.format_color('  ', bg=clr.rgb(0, 3, 0)))
-        sys.stdout.write(clr.format_color('..'))
+        return clr.format_color('  ', bg=clr.rgb(0, 3, 0))
+        #return '..'
 
     @staticmethod
     def draw_move():
-        sys.stdout.write(
-            #clr.format_color('><', fg=clr.rgb(5, 0, 0), bg=clr.rgb(0, 3, 0)))
-            clr.format_color('MM'))
+        return clr.format_color('><', fg=clr.rgb(5, 0, 0), bg=clr.rgb(0, 3, 0))
+        return 'MM'
 
     def set_black(self):
         self.state = 'BLACK'
@@ -62,10 +61,16 @@ class Piece(object):
         self.state = 'WHITE'
 
     def flip(self):
-        self.state = WHITE if self.state is BLACK else BLACK
+        if self.state == BLACK:
+            self.state = WHITE
+        elif self.state == WHITE:
+            self.state = BLACK
+        else:
+            raise ValueError
+
         self.flipped = True
 
-    def move(self):
+    def set_move(self):
         self.state = MOVE
 
     def get_position(self):
@@ -77,5 +82,11 @@ class Piece(object):
     def set_flipped(self):
         self.flipped = True
 
+    def reset_flipped(self):
+        self.flipped = False
+
     def set_board(self):
         self.state = BOARD
+
+    def is_flipped(self):
+        return self.flipped

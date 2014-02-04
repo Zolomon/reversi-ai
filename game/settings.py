@@ -12,3 +12,19 @@ WEST = - 1
 NORTHWEST = -HEIGHT - 1
 
 DIRECTIONS = (NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST)
+
+
+def chunks(l, n):
+    """ Yield successive n-sized chunks from l.
+    """
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
+
+def get_opponent(player):
+    if player == WHITE:
+        return BLACK
+    elif player == BLACK:
+        return WHITE
+    else:
+        raise ValueError
