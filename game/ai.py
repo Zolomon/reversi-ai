@@ -150,3 +150,11 @@ class AlphaBetaPruner(object):
 
     def cutoff_test(self, state, depth):
         return depth > 5
+
+    def outside_board(self, tile, direction):
+        if (direction == NORTH and 0 <= tile <= 7) or \
+           (direction == SOUTH and 56 <= tile <= 63) or \
+           (direction in (NORTHEAST, EAST, SOUTHEAST) and tile % WIDTH == 7) or \
+           (direction in (NORTHWEST, WEST, SOUTHWEST) and tile % WIDTH == 0):
+            return True
+        return False

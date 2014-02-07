@@ -10,12 +10,12 @@ class Game(object):
     """Game ties everything together. It has a board,
     two controllers, and can draw to the screen."""
 
-    def __init__(self, timeout=1000, colour='BLACK', display_moves=True, players=['player', 'ai']):
-        self.board = Board()
+    def __init__(self, timeout=1000, start_colour='BLACK', display_moves=True, players=['player', 'ai'], colour=False):
+        self.board = Board(colour)
         self.timeout = timeout
         self.ai_counter = 0
 
-        self.player = colour
+        self.player = start_colour
         self.players = players
         self.display_moves = display_moves
 
@@ -49,18 +49,23 @@ class Game(object):
             return AiController(self.ai_counter, BLACK if self.player is WHITE else WHITE)
 
     def run(self):
-        turn = 'player'
         while True:
             #os.system('clear')
             print("Playing as:       " + self.player)
             print("Displaying moves: " + str(self.display_moves))
             print("Current turn:     " + str(self.controllers[0]))
-            #self.board.clear_moves()
-            self.board.mark_moves(self.controllers[0].get_colour())
+            player = self.controllers[0].get_colour()
+            self.board.mark_moves(player)
             print(self.board.draw())
+            moves = [self.to_board_coordinates(piece.get_position()) for piece in self.board.get_moves(player)]
+            print("Possible moves are: ", moves)
             self.board.clear_moves()
 
             next_move = self.controllers[0].next_move(self.board)
             self.board.make_move(next_move, self.controllers[0].get_colour())
 
             self.controllers.rotate()
+
+    def to_board_coordinates(self, coordinate):
+        x, y = coordinate
+        return '{0}{1}'.format(chr(ord('a') + x), y + 1)

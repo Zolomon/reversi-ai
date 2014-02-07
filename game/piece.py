@@ -8,11 +8,12 @@ __author__ = 'bengt'
 class Piece(object):
     """Pieces are laid out on the board on an 8x8 grid."""
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, colour):
         self.x = x
         self.y = y
         self.state = 'BOARD'
         self.flipped = False
+        self.colour = colour
 
         self.drawing = {
             "WHITE": self.draw_white,
@@ -29,29 +30,37 @@ class Piece(object):
 
     def draw_white(self):
         if self.flipped:
-            return clr.format_color('><', fg=clr.rgb(4, 4, 4), bg=clr.rgb(5, 5, 5))
-            #return 'WF'
+            if self.colour:
+                return clr.format_color('><', fg=clr.rgb(4, 4, 4), bg=clr.rgb(5, 5, 5))
+
+            return 'WF'
         else:
-            return clr.format_color('  ', bg=clr.rgb(5, 5, 5))
-            #return 'WW'
+            if self.colour:
+                return clr.format_color('  ', bg=clr.rgb(5, 5, 5))
+
+            return 'WW'
 
     def draw_black(self):
         if self.flipped:
-
-            return clr.format_color('><', fg=clr.rgb(2, 2, 2), bg=clr.rgb(1, 1, 1))
-            #return 'BF'
+            if self.colour:
+                return clr.format_color('><', fg=clr.rgb(2, 2, 2), bg=clr.rgb(1, 1, 1))
+            return 'BF'
         else:
-            return clr.format_color('  ', bg=clr.rgb(1, 1, 1))
-            #return 'BB'
+            if self.colour:
+                return clr.format_color('  ', bg=clr.rgb(1, 1, 1))
 
-    @staticmethod
-    def draw_board():
-        return clr.format_color('  ', bg=clr.rgb(0, 3, 0))
-        #return '..'
+            return 'BB'
 
-    @staticmethod
-    def draw_move():
-        return clr.format_color('><', fg=clr.rgb(5, 0, 0), bg=clr.rgb(0, 3, 0))
+    def draw_board(self):
+        if self.colour:
+            return clr.format_color('  ', bg=clr.rgb(0, 3, 0))
+        else:
+            return '..'
+
+    def draw_move(self):
+        if self.colour:
+            return clr.format_color('><', fg=clr.rgb(5, 0, 0), bg=clr.rgb(0, 3, 0))
+
         return 'MM'
 
     def set_black(self):
@@ -90,3 +99,6 @@ class Piece(object):
 
     def is_flipped(self):
         return self.flipped
+
+    def __repr__(self):
+        return '({0},{1})'.format(self.x, self.y)
