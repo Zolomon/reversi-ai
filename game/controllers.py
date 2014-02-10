@@ -26,11 +26,18 @@ class PlayerController(Controller):
                     exit()
             else:
                 try:
+                    if len(event) != 2:
+                        raise ValueError
                     x, y = event[0], event[1]
                     result = self._parse_coordinates(x, y)
-                    found_moves = [p.get_position() for p in board.get_moves(self.get_colour())]
+                    found_moves = [p.get_position() for p in board.get_move_pieces(self.get_colour())]
+
+                    if len(found_moves) == 0:
+                        raise NoMovesError
+
                     if result not in found_moves:
                         raise TypeError
+
                 except (TypeError, ValueError):
                     result = None
                     print("Invalid coordinates, retry.")
@@ -59,7 +66,6 @@ class AiController(Controller):
     def next_move(self, board):
         pruner = AlphaBetaPruner(board.pieces, self.colour, BLACK if self.colour is WHITE else WHITE)
         result = pruner.alpha_beta_search()
-        #print("AI: ", result)
         return result
 
     def get_colour(self):

@@ -46,7 +46,7 @@ class Board(object):
     def set_flipped(self, x, y):
         self.pieces[x + (y * self.width)].set_flipped()
 
-    def get_moves(self, player):
+    def get_move_pieces(self, player):
         self.mark_moves(player)
         moves = [piece for piece in self.pieces if piece.get_state() == MOVE]
         self.clear_moves()
@@ -70,16 +70,13 @@ class Board(object):
         """
         x, y = piece.get_position()
         opponent = get_opponent(player)
-        tile = (x + (y * WIDTH)) + direction
-        if tile < 0 or tile >= WIDTH * HEIGHT:
+        if self.outside_board(x + (y * WIDTH), direction):
             return
+
+        tile = (x + (y * WIDTH)) + direction
 
         if self.pieces[tile].get_state() == opponent:
             while self.pieces[tile].get_state() == opponent:
-                #tile += direction
-                #if tile < 0 or tile >= WIDTH*HEIGHT:
-                #    tile -= direction
-                #    break
                 if self.outside_board(tile, direction):
                     break
                 else:
@@ -90,6 +87,12 @@ class Board(object):
 
     def make_move(self, coordinates, player):
         x, y = coordinates
+
+        moves = [piece.get_position() for piece in self.get_move_pieces(player)]
+
+        if coordinates not in moves:
+            raise ValueError
+
         if (x < 0 or x >= WIDTH) or (y < 0 or y >= HEIGHT):
             raise ValueError
 
@@ -111,15 +114,6 @@ class Board(object):
                         break
                     else:
                         tile += d
-
-                    #if (tile + d < WIDTH*HEIGHT) and (tile + d >= 0):
-                    #    tile += d
-                        #if tile < 0 or tile >= WIDTH*HEIGHT:
-                        #    tile -= d
-                        #    break
-
-                    #else:
-                    #    break
 
                 start_flipping = False
                 for pp in reversed(to_flip):

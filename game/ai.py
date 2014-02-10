@@ -7,8 +7,6 @@ from game.settings import *
 
 class AlphaBetaPruner(object):
     """Alpha-Beta Pruning algorithm."""
-
-
     def __init__(self, pieces, first_player, second_player):
         self.board = 0
         self.move = 1
@@ -30,13 +28,16 @@ class AlphaBetaPruner(object):
     def alpha_beta_search(self):
         """Returns an action"""
         player, state = self.state
-        opponent = self.opponent(player)
         depth = 0
         fn = lambda action: self.min_value(depth, self.next_state(self.state, action), -self.infinity,
                                            self.infinity)
         maxfn = lambda value: value[0]
         actions = self.actions(self.state)
         moves = [(fn(action), action) for action in actions]
+        
+        if len(moves) == 0:
+            raise NoMovesError
+        
         return max(moves, key=maxfn)[1]
 
     def max_value(self, depth, current_state, alpha, beta):
@@ -102,7 +103,6 @@ class AlphaBetaPruner(object):
     def next_state(self, current_state, action):
         player, state = current_state
         opponent = self.opponent(player)
-        #moves = self.get_moves(player, opponent, state)
 
         xx, yy = action
         state[xx + (yy * WIDTH)] = player
@@ -111,7 +111,6 @@ class AlphaBetaPruner(object):
             if tile < 0 or tile >= 64:
                 continue
 
-            #if state[tile] == opponent:
             while state[tile] != self.board:
                 state[tile] = player
                 tile += d
@@ -124,37 +123,72 @@ class AlphaBetaPruner(object):
     def get_moves(self, player, opponent, state):
         """ Returns a generator of (x,y) coordinates.
         """
-        moves = [self.mark_move(player, opponent, x, y, state, d)
+        # moves = [self.mark_move(player, opponent, x, y, state, d)
+        #          for d in DIRECTIONS
+        #          for x in range(WIDTH)
+        #          for y in range(HEIGHT)
+        #          if (x + (y * WIDTH) >= 0) and (x + (y * WIDTH) < WIDTH * HEIGHT) and state[x + (y * WIDTH)] == player]
+
+        # return [(xx, yy) for found, xx, yy, tile in moves if found]
+
+        moves = [self.mark_move(player, opponent, tile, state, d)
+                 for tile in range(WIDTH*HEIGHT)
                  for d in DIRECTIONS
-                 for x in range(WIDTH)
-                 for y in range(HEIGHT)
-                 if (x + (y * WIDTH) >= 0) and (x + (y * WIDTH) < WIDTH * HEIGHT) and state[x + (y * WIDTH)] == player]
-        return [(xx, yy) for found, xx, yy, tile in moves if found]
+                 if not outside_board(tile, d) and state[tile] == player]
 
-    def mark_move(self, player, opponent, x, y, pieces, direction):
-        tile = (x + (y * WIDTH)) + direction
+        return [(x,y) for found, x,y, tile in moves if found]
 
-        if tile < 0 or tile >= WIDTH * HEIGHT:
+
+    def mark_move(self, player, opponent, tile, pieces, direction):
+
+        #if tile < 0 or tile >= WIDTH * HEIGHT:
+        #    return False, int(tile % WIDTH), int(tile / HEIGHT), tile
+        #tile += direction
+
+        if not outside_board(tile, direction):
+            tile += direction
+        else:
             return False, int(tile % WIDTH), int(tile / HEIGHT), tile
 
         if pieces[tile] == opponent:
             while pieces[tile] == opponent:
-                tile += direction
-                if tile < 0 or tile >= WIDTH*HEIGHT:
-                    return False, int(tile % WIDTH), int(tile / HEIGHT), tile
+                # tile += direction
+                # if tile < 0 or tile >= WIDTH*HEIGHT:
+                #    return False, int(tile % WIDTH), int(tile / HEIGHT), tile
+                if outside_board(tile, direction):
+                    #return False, int(tile % WIDTH), int(tile / HEIGHT), tile
+                    break
+                else:
+                    tile += direction
 
             if pieces[tile] == self.board:
                 return True, int(tile % WIDTH), int(tile / HEIGHT), tile
 
         return False, int(tile % WIDTH), int(tile / HEIGHT), tile
 
+    # def mark_move(self, player, opponent, x, y, pieces, direction):
+    #     tile = (x + (y * WIDTH)) + direction
+    #
+    #     if tile < 0 or tile >= WIDTH * HEIGHT:
+    #         return False, int(tile % WIDTH), int(tile / HEIGHT), tile
+    #
+    #     if pieces[tile] == opponent:
+    #         while pieces[tile] == opponent:
+    #             tile += direction
+    #             if tile < 0 or tile >= WIDTH*HEIGHT:
+    #                return False, int(tile % WIDTH), int(tile / HEIGHT), tile
+    #             # if self.outside_board(tile, direction):
+    #             #     #return False, int(tile % WIDTH), int(tile / HEIGHT), tile
+    #             #     break
+    #             # else:
+    #             #     tile += direction
+    #
+    #         if pieces[tile] == self.board:
+    #             return True, int(tile % WIDTH), int(tile / HEIGHT), tile
+    #
+    #     return False, int(tile % WIDTH), int(tile / HEIGHT), tile
+
     def cutoff_test(self, state, depth):
         return depth > 5
 
-    def outside_board(self, tile, direction):
-        if (direction == NORTH and 0 <= tile <= 7) or \
-           (direction == SOUTH and 56 <= tile <= 63) or \
-           (direction in (NORTHEAST, EAST, SOUTHEAST) and tile % WIDTH == 7) or \
-           (direction in (NORTHWEST, WEST, SOUTHWEST) and tile % WIDTH == 0):
-            return True
-        return False
+
