@@ -32,7 +32,7 @@ class PlayerController(Controller):
                     result = self._parse_coordinates(x, y)
                     found_moves = [p.get_position() for p in board.get_move_pieces(self.get_colour())]
 
-                    if len(found_moves) == 0:
+                    if not found_moves:
                         raise NoMovesError
 
                     if result not in found_moves:

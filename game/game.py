@@ -56,6 +56,9 @@ class Game(object):
     def show_commands(self, player):
         moves = [self.to_board_coordinates(piece.get_position()) for piece in self.board.get_move_pieces(player)]
 
+        if not moves:
+            raise NoMovesError
+
         print("Possible moves are: ", moves)
         self.board.clear_moves()
 
@@ -66,9 +69,9 @@ class Game(object):
 
             player = self.show_board()
 
-            self.show_commands(player)
-
             try:
+                self.show_commands(player)
+
                 next_move = self.controllers[0].next_move(self.board)
                 self.board.make_move(next_move, self.controllers[0].get_colour())
             except NoMovesError:
@@ -77,10 +80,13 @@ class Game(object):
                 whites = len([p for p in self.board.pieces if p.get_state() == WHITE])
                 if blacks > whites:
                     print("Black won this game.")
+                    exit()
                 elif blacks == whites:
                     print("This game was a tie.")
+                    exit()
                 else:
                     print("White won was a tie.")
+                    exit()
 
             self.controllers.rotate()
 
