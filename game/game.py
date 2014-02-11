@@ -15,6 +15,7 @@ class Game(object):
                  display_moves=True,
                  players=['ai', 'ai'],
                  colour=False):
+
         self.board = Board(colour)
         self.timeout = timeout
         self.ai_counter = 0
