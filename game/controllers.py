@@ -74,17 +74,16 @@ class AiController(Controller):
         self.duration = duration
 
     def next_move(self, board):
-        print("Creating a new brain")
         brain = Brain(self.duration, stdoutmutex, workQueue, board.pieces, self.colour, BLACK if self.colour is WHITE else WHITE)
         brain.start()
-        print("Brain started")
 
-        # threads.append(brain)
+        threads.append(brain)
 
         print('Brain is thinking ', end='')
-        update_step_duration = datetime.timedelta(microseconds=200000)
+        update_step_duration = datetime.timedelta(microseconds=10000)
         goal_time = datetime.datetime.now()+update_step_duration
         accumulated_time = datetime.datetime.now()
+
         while workQueue.empty():
             if accumulated_time >= goal_time:
                 print('.', end='')
@@ -95,13 +94,10 @@ class AiController(Controller):
 
         print()
 
-        # brain.join()
-        print("Brain done thinking ...")
+        for thread in threads:
+            thread.join()
 
         return workQueue.get()
-        #pruner = AlphaBetaPruner(board.pieces, self.colour, BLACK if self.colour is WHITE else WHITE)
-        #result = pruner.alpha_beta_search()
-        # return result
 
     def get_colour(self):
         return self.colour
