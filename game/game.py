@@ -11,16 +11,20 @@ class Game(object):
     """Game ties everything together. It has a board,
     two controllers, and can draw to the screen."""
 
-    def __init__(self, timeout=1000, start_colour=BLACK, display_moves=True, players=['player', 'ai'], colour=False):
+    def __init__(self, timeout=1000,
+                 display_moves=True,
+                 players=['ai', 'ai'],
+                 colour=False):
         self.board = Board(colour)
         self.timeout = timeout
         self.ai_counter = 0
 
-        self.player = start_colour
+        self.list_of_colours = [BLACK, WHITE]
         self.players = players
         self.display_moves = display_moves
 
-        self.controllers = deque([self._make_controller(p) for p in players])
+        self.controllers = deque([self._make_controller(c, p) for c, p in zip(self.list_of_colours, self.players)])
+        self.player = self.controllers[0].get_colour()
 
         self.board.set_black(4, 3)
         self.board.set_black(3, 4)
@@ -31,12 +35,12 @@ class Game(object):
 
         self.previous_move = None
 
-    def _make_controller(self, controller_type):
+    def _make_controller(self, colour, controller_type):
         if controller_type == 'player':
-            return PlayerController(self.player)
+            return PlayerController(colour)
         else:
             self.ai_counter += 1
-            return AiController(self.ai_counter, BLACK if self.player is WHITE else WHITE)
+            return AiController(self.ai_counter, colour, self.timeout)
 
     def show_info(self):
         print("Playing as:       " + self.player)
@@ -48,13 +52,12 @@ class Game(object):
             len([p for p in self.board.pieces if p.get_state() == WHITE])))
 
     def show_board(self):
-        player = self.controllers[0].get_colour()
-        self.board.mark_moves(player)
+        self.player = self.controllers[0].get_colour()
+        self.board.mark_moves(self.player)
         print(self.board.draw())
-        return player
 
-    def show_commands(self, player):
-        moves = [self.to_board_coordinates(piece.get_position()) for piece in self.board.get_move_pieces(player)]
+    def show_commands(self):
+        moves = [self.to_board_coordinates(piece.get_position()) for piece in self.board.get_move_pieces(self.player)]
 
         if not moves:
             raise NoMovesError
@@ -64,13 +67,13 @@ class Game(object):
 
     def run(self):
         while True:
-            #os.system('clear')
+            os.system('clear')
             self.show_info()
 
-            player = self.show_board()
+            self.show_board()
 
             try:
-                self.show_commands(player)
+                self.show_commands()
 
                 next_move = self.controllers[0].next_move(self.board)
                 self.board.make_move(next_move, self.controllers[0].get_colour())

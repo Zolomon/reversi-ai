@@ -1,5 +1,10 @@
+import datetime
+import os
+import queue
 import threading
+import sys
 from game.ai import AlphaBetaPruner
+from game.brain import Brain
 from game.settings import *
 
 __author__ = 'bengt'
@@ -59,22 +64,44 @@ class PlayerController(Controller):
         return ord(x) - ord('a'), ord(y) - ord('0') - 1
 
 stdoutmutex = threading.Lock()
+# stdoutmutex = None
 workQueue = queue.Queue(1)
 threads = []
 class AiController(Controller):
-    def __init__(self, id, colour):
+    def __init__(self, id, colour, duration):
         self.id = id
         self.colour = colour
+        self.duration = duration
 
     def next_move(self, board):
-        brain = Brain(stdoutmutex, workQueue, board.pieces, self.colour, BLACK if self.colour is WHITE else WHITE)
+        print("Creating a new brain")
+        brain = Brain(self.duration, stdoutmutex, workQueue, board.pieces, self.colour, BLACK if self.colour is WHITE else WHITE)
         brain.start()
-        threads.append(brain)
-        brain.join()
+        print("Brain started")
+
+        # threads.append(brain)
+
+        print('Brain is thinking ', end='')
+        update_step_duration = datetime.timedelta(microseconds=200000)
+        goal_time = datetime.datetime.now()+update_step_duration
+        accumulated_time = datetime.datetime.now()
+        while workQueue.empty():
+            if accumulated_time >= goal_time:
+                print('.', end='')
+                goal_time = datetime.datetime.now() + update_step_duration
+                sys.stdout.flush()
+
+            accumulated_time = datetime.datetime.now()
+
+        print()
+
+        # brain.join()
+        print("Brain done thinking ...")
+
         return workQueue.get()
         #pruner = AlphaBetaPruner(board.pieces, self.colour, BLACK if self.colour is WHITE else WHITE)
         #result = pruner.alpha_beta_search()
-        return result
+        # return result
 
     def get_colour(self):
         return self.colour

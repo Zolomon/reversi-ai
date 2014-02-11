@@ -1,3 +1,4 @@
+import datetime
 import sys
 
 __author__ = 'bengt'
@@ -7,11 +8,16 @@ from game.settings import *
 
 class AlphaBetaPruner(object):
     """Alpha-Beta Pruning algorithm."""
-    def __init__(self, pieces, first_player, second_player):
+    def __init__(self, mutex, duration, pieces, first_player, second_player):
+        self.mutex = mutex
+
         self.board = 0
         self.move = 1
         self.white = 2
         self.black = 3
+
+        self.duration = duration
+        self.lifetime = None
 
         self.infinity = 1.0e400
 
@@ -19,7 +25,6 @@ class AlphaBetaPruner(object):
             if first_player == WHITE else (self.black, self.white)
 
         self.state = self.make_state(pieces)
-        print(self.state)
 
     def make_state(self, pieces):
         results = {BOARD: self.board, MOVE: self.board, WHITE: self.white, BLACK: self.black}
@@ -28,6 +33,7 @@ class AlphaBetaPruner(object):
     def alpha_beta_search(self):
         """Returns an action"""
         player, state = self.state
+        self.lifetime = datetime.datetime.now() + datetime.timedelta(seconds=self.duration)
         depth = 0
         fn = lambda action: self.min_value(depth, self.next_state(self.state, action), -self.infinity,
                                            self.infinity)
@@ -43,7 +49,7 @@ class AlphaBetaPruner(object):
     def max_value(self, depth, current_state, alpha, beta):
         player, state = current_state
         if self.cutoff_test(current_state, depth):
-            return self.utility(current_state, self.first_player)
+            return self.evaluation(current_state, self.first_player)
 
         value = -self.infinity
 
@@ -58,7 +64,7 @@ class AlphaBetaPruner(object):
 
     def min_value(self, depth, state, alpha, beta):
         if self.cutoff_test(state, depth):
-            return self.utility(state, self.second_player)
+            return self.evaluation(state, self.second_player)
 
         value = self.infinity
 
@@ -71,23 +77,43 @@ class AlphaBetaPruner(object):
 
         return value
 
-    def utility(self, current_state, player_to_check):
+    def evaluation(self, current_state, player_to_check):
         """
         Returns 1 for a win for 'player'
         Returns 0 for a draw for 'player'
         Returns -1 for a lose for 'player'
         """
-        player, state = current_state
-        moves = self.get_moves(player_to_check, self.opponent(player_to_check), state)
-        white_pieces = len([p for p in state if p == self.white])
-        black_pieces = len([p for p in state if p == self.black])
-        p1, p2 = (white_pieces, black_pieces) if player_to_check == self.white else (black_pieces, white_pieces)
-        if p1 > p2:
-            return 1
-        elif p1 == p2:
-            return 0
-        else:
-            return -1
+        player_state, state   = current_state
+        player = player_to_check
+        opponent = self.opponent(player)
+
+        # count_eval stands for the player with the most pieces next turn
+        moves           = self.get_moves(player, opponent, state)
+        player_pieces    = len([p for p in state if p == player])
+        opponent_pieces    = len([p for p in state if p == opponent])
+        count_eval     = 1 if player_pieces > opponent_pieces else \
+                         0 if player_pieces == opponent_pieces else \
+                        -1
+
+        moves_player    = moves
+        moves_oppponent = self.get_moves(opponent, player, state)
+        move_eval       = 1 if moves_player > moves_oppponent else \
+                          0 if moves_player == moves_oppponent else \
+                         -1
+
+        corners_player  = (state[0] == player) +  \
+                          (state[7] == player) +  \
+                          (state[56] == player) + \
+                          (state[63] == player)
+        corners_opponent= -1*(state[0] == opponent) +  \
+                          (state[7] == opponent) +  \
+                          (state[56] == opponent) + \
+                          (state[63] == opponent)
+        corners_eval = corners_player + corners_opponent
+
+        eval = count_eval * 2 + move_eval * 1.5 + corners_eval * 0.5
+
+        return eval
 
     def terminal_test(self, state):
         return len(self.get_moves(state[0], self.opponent(state[0]), state[1])) == 0 # No moves in the state...
@@ -123,14 +149,6 @@ class AlphaBetaPruner(object):
     def get_moves(self, player, opponent, state):
         """ Returns a generator of (x,y) coordinates.
         """
-        # moves = [self.mark_move(player, opponent, x, y, state, d)
-        #          for d in DIRECTIONS
-        #          for x in range(WIDTH)
-        #          for y in range(HEIGHT)
-        #          if (x + (y * WIDTH) >= 0) and (x + (y * WIDTH) < WIDTH * HEIGHT) and state[x + (y * WIDTH)] == player]
-
-        # return [(xx, yy) for found, xx, yy, tile in moves if found]
-
         moves = [self.mark_move(player, opponent, tile, state, d)
                  for tile in range(WIDTH*HEIGHT)
                  for d in DIRECTIONS
@@ -158,6 +176,6 @@ class AlphaBetaPruner(object):
         return False, int(tile % WIDTH), int(tile / HEIGHT), tile
 
     def cutoff_test(self, state, depth):
-        return depth > 7
+        return depth > 1000 or datetime.datetime.now() > self.lifetime
 
 
