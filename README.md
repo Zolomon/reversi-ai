@@ -19,7 +19,7 @@ Requirements:
 The application was only tested on Ubuntu 13.10 and Mac OS X 10.8.5 with successful results.
 
 ###2. How to Install and Run
-`
+```
 $ mkdir reversi
 $ cd reversi
 $ wget https://github.com/Zolomon/reversi-ai/archive/master.zip
@@ -27,9 +27,9 @@ $ unzip master.zip
 $ cd reversi-ai-master/
 $ chmod +x reversi.py
 $ ./reversi.py --help
-$ ./reversi.py --colour 
+$ ./reversi.py --colour # or...
 $ #python3 reversi.py --colour
-`
+```
 ###3. What is it?
 `reversi-ai` is an implementation of the game Reversi where you can face the computer, or 
 watch two artificial intelligences battle it out against each other. 
