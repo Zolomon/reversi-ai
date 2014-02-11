@@ -57,6 +57,11 @@ However, only simple output is done to signal that the application has not crash
 The `AlphaBetaPruner` (`ABP`) is an implementation of the Minimax algorithm with the Alpha-Beta Pruning optimization. 
 The `ABP` is implemented using a list of integers to represent the board, a more optimized way would have been to just use 
 three 64 bit integers and bitwise operators, but this was the first representation that came to mind so I went with this.  
-In the implementation of the `ABP`, the most interesting function is the `evaluation` function. 
 
-This is what can actually be considered the brain of the whole artificial intelligence, here is where the actual state evaluation is performed. The following evaluations are used; whether the player has more bricks than its opponent, how many player bricks are located on the edges (edge bricks are important in order to control flipping of the opponent's bricks), how many player bricks are in the corners which are also very important strategically. 
+In the implementation of the `ABP`, the most interesting function is the `evaluation` function. This is what can actually be considered the brain of the whole artificial intelligence, here is where the actual state evaluation is performed. The following evaluations are used; whether the player has more bricks than its opponent, how many player bricks are located on the edges (edge bricks are important in order to control flipping of the opponent's bricks), how many player bricks are in the corners which are also very important strategically. I found more important heuristics to be made at [WikiPedia](http://en.wikipedia.org/wiki/Reversi#Strategic_elements), but did not have enough time to profile them. 
+
+The `Game` instance has a `Board` object which contains a list of `Piece` objects that has an internal state to represent the different types of possible pieces `(Board, Move, White, Black)`. Each `Piece` is drawn to the display either in monochrome colours or in 256 RGB colours if the `--colour` command line flag is set. 
+
+The game is played by giving input in the shape of x,y coordinates for the valid moves, using the common format of x∈(a-h), y∈(1,8), for example: d3, h1, a2, f8, h7 etc. 
+
+The game is over when there are no more moves left, and the winner will be determined by a count of bricks (more bricks is better).
