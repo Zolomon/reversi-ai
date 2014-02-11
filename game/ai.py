@@ -15,8 +15,8 @@ class AlphaBetaPruner(object):
 
         self.infinity = 1.0e400
 
-        self.first_player, self.second_player = (self.white, self.black) if first_player == WHITE else (
-            self.black, self.white)
+        self.first_player, self.second_player = (self.white, self.black) \
+            if first_player == WHITE else (self.black, self.white)
 
         self.state = self.make_state(pieces)
         print(self.state)
@@ -140,11 +140,6 @@ class AlphaBetaPruner(object):
 
 
     def mark_move(self, player, opponent, tile, pieces, direction):
-
-        #if tile < 0 or tile >= WIDTH * HEIGHT:
-        #    return False, int(tile % WIDTH), int(tile / HEIGHT), tile
-        #tile += direction
-
         if not outside_board(tile, direction):
             tile += direction
         else:
@@ -152,11 +147,7 @@ class AlphaBetaPruner(object):
 
         if pieces[tile] == opponent:
             while pieces[tile] == opponent:
-                # tile += direction
-                # if tile < 0 or tile >= WIDTH*HEIGHT:
-                #    return False, int(tile % WIDTH), int(tile / HEIGHT), tile
                 if outside_board(tile, direction):
-                    #return False, int(tile % WIDTH), int(tile / HEIGHT), tile
                     break
                 else:
                     tile += direction
@@ -166,29 +157,7 @@ class AlphaBetaPruner(object):
 
         return False, int(tile % WIDTH), int(tile / HEIGHT), tile
 
-    # def mark_move(self, player, opponent, x, y, pieces, direction):
-    #     tile = (x + (y * WIDTH)) + direction
-    #
-    #     if tile < 0 or tile >= WIDTH * HEIGHT:
-    #         return False, int(tile % WIDTH), int(tile / HEIGHT), tile
-    #
-    #     if pieces[tile] == opponent:
-    #         while pieces[tile] == opponent:
-    #             tile += direction
-    #             if tile < 0 or tile >= WIDTH*HEIGHT:
-    #                return False, int(tile % WIDTH), int(tile / HEIGHT), tile
-    #             # if self.outside_board(tile, direction):
-    #             #     #return False, int(tile % WIDTH), int(tile / HEIGHT), tile
-    #             #     break
-    #             # else:
-    #             #     tile += direction
-    #
-    #         if pieces[tile] == self.board:
-    #             return True, int(tile % WIDTH), int(tile / HEIGHT), tile
-    #
-    #     return False, int(tile % WIDTH), int(tile / HEIGHT), tile
-
     def cutoff_test(self, state, depth):
-        return depth > 5
+        return depth > 7
 
 

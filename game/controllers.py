@@ -1,3 +1,4 @@
+import threading
 from game.ai import AlphaBetaPruner
 from game.settings import *
 
@@ -57,15 +58,22 @@ class PlayerController(Controller):
     def _parse_coordinates(x, y):
         return ord(x) - ord('a'), ord(y) - ord('0') - 1
 
-
+stdoutmutex = threading.Lock()
+workQueue = queue.Queue(1)
+threads = []
 class AiController(Controller):
     def __init__(self, id, colour):
         self.id = id
         self.colour = colour
 
     def next_move(self, board):
-        pruner = AlphaBetaPruner(board.pieces, self.colour, BLACK if self.colour is WHITE else WHITE)
-        result = pruner.alpha_beta_search()
+        brain = Brain(stdoutmutex, workQueue, board.pieces, self.colour, BLACK if self.colour is WHITE else WHITE)
+        brain.start()
+        threads.append(brain)
+        brain.join()
+        return workQueue.get()
+        #pruner = AlphaBetaPruner(board.pieces, self.colour, BLACK if self.colour is WHITE else WHITE)
+        #result = pruner.alpha_beta_search()
         return result
 
     def get_colour(self):

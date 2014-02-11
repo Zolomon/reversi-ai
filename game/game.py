@@ -85,7 +85,7 @@ class Game(object):
                     print("This game was a tie.")
                     exit()
                 else:
-                    print("White won was a tie.")
+                    print("White won this game.")
                     exit()
 
             self.controllers.rotate()
