@@ -11,29 +11,26 @@ class AlphaBetaPruner(object):
 
     def __init__(self, mutex, duration, pieces, first_player, second_player):
         self.mutex = mutex
-
         self.board = 0
         self.move = 1
         self.white = 2
         self.black = 3
-
         self.duration = duration
         self.lifetime = None
-
         self.infinity = 1.0e400
-
         self.first_player, self.second_player = (self.white, self.black) \
             if first_player == WHITE else (self.black, self.white)
-
         self.state = self.make_state(pieces)
 
     def make_state(self, pieces):
+        """ Returns a tuple in the form of "current_state", that is: (current_player, state).
+        """
         results = {BOARD: self.board, MOVE: self.board, WHITE: self.white, BLACK: self.black}
         return self.first_player, [results[p.get_state()] for p in pieces]
 
     def alpha_beta_search(self):
-        """Returns an action"""
-        player, state = self.state
+        """ Returns a valid action for the AI.
+        """
         self.lifetime = datetime.datetime.now() + datetime.timedelta(seconds=self.duration)
         depth = 0
         fn = lambda action: self.min_value(depth, self.next_state(self.state, action), -self.infinity,
@@ -48,7 +45,8 @@ class AlphaBetaPruner(object):
         return max(moves, key=maxfn)[1]
 
     def max_value(self, depth, current_state, alpha, beta):
-        player, state = current_state
+        """ Calculates the best possible move for the AI.
+        """
         if self.cutoff_test(current_state, depth):
             return self.evaluation(current_state, self.first_player)
 
@@ -64,6 +62,8 @@ class AlphaBetaPruner(object):
         return value
 
     def min_value(self, depth, state, alpha, beta):
+        """ Calculates the best possible move for the player.
+        """
         if self.cutoff_test(state, depth):
             return self.evaluation(state, self.second_player)
 
@@ -79,11 +79,10 @@ class AlphaBetaPruner(object):
         return value
 
     def evaluation(self, current_state, player_to_check):
-        """
-        Returns 1 for a win for 'player'
-        Returns 0 for a draw for 'player'
-        Returns -1 for a lose for 'player'
-        """
+        """ Returns a positive value when the player wins.
+            Returns zero when there is a draw.
+            Returns a negative value when the opponent wins."""
+
         player_state, state = current_state
         player = player_to_check
         opponent = self.opponent(player)
@@ -122,18 +121,20 @@ class AlphaBetaPruner(object):
 
         return eval
 
-    def terminal_test(self, state):
-        return len(self.get_moves(state[0], self.opponent(state[0]), state[1])) == 0  # No moves in the state...
-
     def actions(self, current_state):
-        """Returns """
+        """ Returns a list of tuples as coordinates for the valid moves for the current player.
+        """
         player, state = current_state
         return self.get_moves(player, self.opponent(player), state)
 
     def opponent(self, player):
+        """ Returns the opponent of the specified player.
+        """
         return self.second_player if player is self.first_player else self.first_player
 
     def next_state(self, current_state, action):
+        """ Returns the next state in the form of a "current_state" tuple, (current_player, state).
+        """
         player, state = current_state
         opponent = self.opponent(player)
 
@@ -165,6 +166,9 @@ class AlphaBetaPruner(object):
 
 
     def mark_move(self, player, opponent, tile, pieces, direction):
+        """ Returns True whether the current tile piece is a move for the current player,
+            otherwise it returns False.
+        """
         if not outside_board(tile, direction):
             tile += direction
         else:
@@ -183,6 +187,8 @@ class AlphaBetaPruner(object):
         return False, int(tile % WIDTH), int(tile / HEIGHT), tile
 
     def cutoff_test(self, state, depth):
+        """ Returns True when the cutoff limit has been reached.
+        """
         return depth > 1000 or datetime.datetime.now() > self.lifetime
 
 

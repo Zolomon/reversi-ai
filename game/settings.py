@@ -33,14 +33,15 @@ def get_opponent(player):
 class NoMovesError(Exception):
     pass
 
+
 def outside_board(tile, direction):
     tile_top = 0 <= tile <= 7
     tile_bot = 56 <= tile <= 63
     tile_right = tile % WIDTH == 7
     tile_left = tile % WIDTH == 0
     if (direction in (NORTH, NORTHEAST, NORTHWEST) and tile_top) or \
-       (direction in (SOUTH, SOUTHWEST, SOUTHEAST) and tile_bot) or \
-       (direction in (NORTHEAST, EAST, SOUTHEAST) and tile_right) or \
-       (direction in (NORTHWEST, WEST, SOUTHWEST) and tile_left):
+            (direction in (SOUTH, SOUTHWEST, SOUTHEAST) and tile_bot) or \
+            (direction in (NORTHEAST, EAST, SOUTHEAST) and tile_right) or \
+            (direction in (NORTHWEST, WEST, SOUTHWEST) and tile_left):
         return True
     return False

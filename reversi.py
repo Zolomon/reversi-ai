@@ -5,7 +5,8 @@ from game.game import Game
 
 
 def main():
-    """ Reversi game with human player vs AI player """
+    """ Reversi game with human player vs AI player.
+    """
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--timeout', help="Number of seconds the brain is allowed to think before making its move.",
