@@ -2,6 +2,7 @@ import os
 from collections import deque
 from game.board import Board
 from game.controllers import PlayerController, AiController
+from game.random_controller import RandomController
 from game.settings import *
 
 __author__ = 'bengt'
@@ -11,7 +12,7 @@ class Game(object):
     """Game ties everything together. It has a board,
     two controllers, and can draw to the screen."""
 
-    def __init__(self, timeout=1000,
+    def __init__(self, timeout=1,
                  display_moves=True,
                  players=['ai', 'ai'],
                  colour=False):
@@ -38,6 +39,8 @@ class Game(object):
         """
         if controller_type == 'player':
             return PlayerController(colour)
+        elif controller_type == 'random':
+            return RandomController(colour)
         else:
             self.ai_counter += 1
             return AiController(self.ai_counter, colour, self.timeout)

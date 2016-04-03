@@ -10,11 +10,12 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--timeout', help="Number of seconds the brain is allowed to think before making its move.",
-                        type=int, default=20)
+                        type=int, default=1)
     parser.add_argument('--display-moves', help="Whether legal moves should be displayed or not.", action='store_true')
     parser.add_argument('--colour', help="Display the game in 256 colours.", action='store_true')
     parser.add_argument('--player', help="If you want to play against the ai", action='store_true')
     parser.add_argument('--ai', help="If you want the ais to play against each other", action='store_true')
+    parser.add_argument('--verify', help="Verify AI using a random player", action='store_true')
 
     args = parser.parse_args()
 
@@ -26,6 +27,8 @@ def main():
         players = ['player', 'ai']
     if args.ai:
         players = ['ai', 'ai']
+    elif args.verify:
+        players = ['ai', 'random']
     if not players:
         players = ['player', 'ai']
 
