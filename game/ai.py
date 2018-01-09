@@ -1,3 +1,4 @@
+import copy
 import datetime
 import sys
 
@@ -124,7 +125,8 @@ class AlphaBetaPruner(object):
     def actions(self, current_state):
         """ Returns a list of tuples as coordinates for the valid moves for the current player.
         """
-        player, state = current_state
+        tmp_state = copy.deepcopy(current_state)
+        player, state = tmp_state
         return self.get_moves(player, self.opponent(player), state)
 
     def opponent(self, player):
@@ -135,7 +137,8 @@ class AlphaBetaPruner(object):
     def next_state(self, current_state, action):
         """ Returns the next state in the form of a "current_state" tuple, (current_player, state).
         """
-        player, state = current_state
+        tmp_state = copy.deepcopy(current_state)
+        player, state = tmp_state
         opponent = self.opponent(player)
 
         xx, yy = action
@@ -190,5 +193,3 @@ class AlphaBetaPruner(object):
         """ Returns True when the cutoff limit has been reached.
         """
         return depth > 1000 or datetime.datetime.now() > self.lifetime
-
-
