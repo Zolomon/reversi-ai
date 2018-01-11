@@ -31,6 +31,7 @@ class Game(object):
         self.board.set_white(3, 3)
         self.board.mark_moves(self.player)
         self.previous_move = None
+        self.previous_round_passed = False
 
     def _make_controller(self, colour, controller_type):
         """ Returns a controller with the specified colour.
@@ -87,20 +88,24 @@ class Game(object):
                 self.show_commands()
                 next_move = self.controllers[0].next_move(self.board)
                 self.board.make_move(next_move, self.controllers[0].get_colour())
+                self.previous_round_passed = False
             except NoMovesError:
-                print("Game Over")
-                blacks = len([p for p in self.board.pieces if p.get_state() == BLACK])
-                whites = len([p for p in self.board.pieces if p.get_state() == WHITE])
+                if self.previous_round_passed:
+                    print("Game Over")
+                    blacks = len([p for p in self.board.pieces if p.get_state() == BLACK])
+                    whites = len([p for p in self.board.pieces if p.get_state() == WHITE])
 
-                if blacks > whites:
-                    print("Black won this game.")
-                    exit()
-                elif blacks == whites:
-                    print("This game was a tie.")
-                    exit()
+                    if blacks > whites:
+                        print("Black won this game.")
+                        exit()
+                    elif blacks == whites:
+                        print("This game was a tie.")
+                        exit()
+                    else:
+                        print("White won this game.")
+                        exit()
                 else:
-                    print("White won this game.")
-                    exit()
+                    self.previous_round_passed = True
 
             self.controllers.rotate()
 
