@@ -125,7 +125,7 @@ class Board(object):
             if (tile >= 0) and (tile < WIDTH*HEIGHT):
                 while self.pieces[tile].get_state() != BOARD:
                     to_flip.append(self.pieces[tile])
-                    if self.outside_board(tile, d):
+                    if self.pieces[tile].get_state() == player or self.outside_board(tile, d):
                         break
                     else:
                         tile += d
