@@ -137,23 +137,25 @@ class AlphaBetaPruner(object):
     def next_state(self, current_state, action):
         """ Returns the next state in the form of a "current_state" tuple, (current_player, state).
         """
-        tmp_state = copy.deepcopy(current_state)
-        player, state = tmp_state
+        placed   = action[0] + (action[1] * WIDTH)
+        player   = copy.copy(current_state[0])
+        state    = copy.copy(current_state[1])
         opponent = self.opponent(player)
 
-        xx, yy = action
-        state[xx + (yy * WIDTH)] = player
+        state[placed] = player
         for d in DIRECTIONS:
-            tile = xx + (yy * WIDTH) + d
-            if tile < 0 or tile >= 64:
+            if outside_board(placed, d):
                 continue
 
-            while state[tile] != self.board:
-                state[tile] = player
+            to_flip = []
+            tile = placed + d
+            while state[tile] == opponent and not outside_board(tile, d):
+                to_flip.append(tile)
                 tile += d
-                if tile < 0 or tile >= WIDTH * HEIGHT:
-                    tile -= d
-                    break
+
+            if state[tile] == player:
+                for piece in to_flip:
+                    state[piece] = player
 
         return opponent, state
 
